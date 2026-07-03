@@ -1,3 +1,5 @@
+![readdiff](readdiff/readdiff.png)
+
 # ReadDiff
 
 A command-line tool for discovering differentially expressed reads. It builds on the Needle algorithm for alignment-free, minimizer-based sequence quantification ([Darvish et al., 2022](https://doi.org/10.1093/bioinformatics/btac492)). Rather than measuring expression over predefined annotations such as genes or transcripts, `readdiff` performs differential testing directly on sequencing reads, enabling unsupervised and annotation-independent discovery of expression changes.
