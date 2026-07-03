@@ -1,0 +1,47 @@
+# Default configuration for readdiff.
+# Config priority: WORKDIR/config.yaml > ~/.config/readdiff/config.yaml > this file.
+
+# General
+
+sample_dir: "samples"
+paired: True
+metadata: 
+
+# Index building
+
+## Needle parameters
+kmer_size: 18
+window_size: 24
+n_bins: 20
+cutoff: 2
+n_indices: 1
+
+# Feature sampling
+random_seed: 42
+n_features: 100000
+feature_len: 100
+balance:
+
+# Estimation
+query_file: 
+normalize: False
+log10: False
+
+# Differential testing
+test_factors:
+batch_factors: 
+
+# Downstream analysis
+padj_threshold: 0.05
+log2fc_threshold: 0
+star_index: 
+gtf_annotation: 
+homer_genome: "hg38"
+
+# Volcano explorer
+volcano_config:
+
+# Resources
+max_ram: 64000
+snakemake_cores: 4
+snakemake_profile: 

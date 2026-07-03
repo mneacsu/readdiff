@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "readdiff"
+version = "0.1.0"
+dependencies = [
+    "typer",
+    "snakemake",
+    "snakemake-executor-plugin-slurm",
+    "dash",
+    "dash-mantine-components",
+]
+
+[project.scripts]
+readdiff = "readdiff.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["readdiff*"]

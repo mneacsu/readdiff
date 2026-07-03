@@ -1,0 +1,609 @@
+/* ─────────────────────────────────────────────────────────────
+   volcano_explorer — Clean Scientific theme (Direction A)
+   Drop-in stylesheet served from /assets/ by Dash automatically.
+   Light / dark themes via [data-theme="dark"] on <html>.
+   ───────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:        #fafaf9;
+  --surface:   #ffffff;
+  --subtle:    #f5f5f4;
+  --border:    #e7e5e4;
+  --text:      #1c1917;
+  --muted:     #78716c;
+  --dim:       #a8a29e;
+  --accent-up: #dc2626;
+  --accent-dn: #2563eb;
+  --rail-w:    52px;
+  --left-w:    300px;
+  --right-w:   340px;
+  --header-h:  52px;
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-serif:"Source Serif 4", "Source Serif Pro", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+[data-theme="dark"] {
+  --bg:        #0c0c0e;
+  --surface:   #1f1f23;
+  --subtle:    #2a2a2e;
+  --border:    #353539;
+  --text:      #f5f5f4;
+  --muted:     #a8a29e;
+  --dim:       #78716c;
+  --accent-up: #f87171;
+  --accent-dn: #60a5fa;
+}
+
+html, body { background: var(--bg); color: var(--text); }
+body {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  margin: 0;
+}
+
+/* ─── Header ─────────────────────────────────────────────────── */
+.cs-header {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+}
+.cs-brand {
+  font-size: 14px; font-weight: 600; letter-spacing: -0.2px;
+  font-family: var(--font-serif);
+}
+.cs-divider { width: 1px; height: 18px; background: var(--border); }
+.cs-project-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px; background: var(--subtle);
+  border: 1px solid var(--border); border-radius: 6px;
+  font-size: 12px; cursor: pointer; color: var(--text);
+  font-family: var(--font-sans);
+}
+.cs-project-pill:hover { background: var(--bg); }
+.cs-project-pill .dot { width: 6px; height: 6px; border-radius: 3px; background: #10b981; }
+.cs-project-pill .sub { color: var(--muted); }
+.cs-project-pill .caret {
+  margin-left: 4px; color: var(--dim);
+  font-size: 10px;
+}
+
+.cs-search-trigger {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; background: transparent;
+  border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); font-size: 11px; cursor: pointer;
+  font-family: var(--font-sans);
+}
+.cs-search-trigger:hover { color: var(--text); border-color: var(--text); }
+.cs-search-trigger .kbd {
+  margin-left: 8px; padding: 1px 5px;
+  background: var(--subtle); border: 1px solid var(--border);
+  border-radius: 3px; font-size: 10px;
+  font-family: var(--font-mono); color: var(--dim);
+}
+
+/* Saved-views trigger (header) — same chip-like skin as search */
+.cs-saved-trigger {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; background: transparent;
+  border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); font-size: 11px; cursor: pointer;
+  font-family: var(--font-sans);
+}
+.cs-saved-trigger:hover { color: var(--text); border-color: var(--text); }
+
+/* Recent-views quick-access pills (next to the saved-views trigger) */
+.cs-recent-pills {
+  display: flex; gap: 4px; align-items: center;
+  margin-left: 4px;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+.cs-recent-pill {
+  padding: 3px 9px; font-size: 10px;
+  background: var(--subtle); color: var(--muted);
+  border: 1px solid var(--border); border-radius: 10px;
+  cursor: pointer; font-family: var(--font-sans);
+  max-width: 140px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+  flex-shrink: 1;
+}
+.cs-recent-pill:hover {
+  color: var(--text); border-color: var(--text);
+  background: var(--bg);
+}
+
+.cs-icon-btn {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  background: transparent; border: none; border-radius: 6px;
+  color: var(--muted); cursor: pointer;
+}
+.cs-icon-btn:hover { background: var(--subtle); color: var(--text); }
+
+/* ─── Body grid ──────────────────────────────────────────────── */
+.cs-body {
+  display: flex;
+  margin-top: var(--header-h);
+  height: calc(100vh - var(--header-h));
+}
+
+/* Left controls panel */
+.cs-controls {
+  width: var(--left-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow: auto; flex-shrink: 0;
+}
+.cs-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.cs-eyebrow {
+  font-size: 11px; letter-spacing: 0.6px;
+  text-transform: uppercase; color: var(--dim);
+  font-weight: 500; margin-bottom: 10px;
+}
+.cs-title-serif {
+  font-family: var(--font-serif);
+  font-size: 19px; line-height: 1.2;
+  margin-bottom: 4px; color: var(--text);
+}
+.cs-title-serif .vs { color: var(--dim); }
+.cs-subline { font-size: 11px; color: var(--muted); }
+
+.cs-stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.cs-stat-label {
+  font-size: 10px; letter-spacing: 0.6px;
+  text-transform: uppercase; color: var(--dim);
+  font-weight: 500;
+}
+.cs-stat-value {
+  font-size: 18px; font-family: var(--font-serif);
+  color: var(--text); display: flex; align-items: center; gap: 6px;
+}
+.cs-stat-dot { width: 6px; height: 6px; border-radius: 3px; display: inline-block; }
+
+.cs-chip-group { display: flex; flex-wrap: wrap; gap: 4px; }
+.cs-chip {
+  padding: 4px 9px; font-size: 11px; border-radius: 12px;
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border); cursor: pointer;
+  font-family: var(--font-sans);
+}
+.cs-chip:hover { color: var(--text); border-color: var(--text); }
+.cs-chip.active {
+  background: var(--text); color: var(--bg); border-color: var(--text);
+}
+
+.cs-input, .cs-select {
+  width: 100%; padding: 6px 9px; font-size: 12px;
+  border: 1px solid var(--border); border-radius: 5px;
+  background: var(--bg); color: var(--text);
+  font-family: var(--font-sans); box-sizing: border-box;
+  outline: none;
+}
+.cs-input:focus, .cs-select:focus {
+  border-color: var(--text);
+}
+
+.cs-row { display: flex; gap: 6px; margin-bottom: 8px; }
+
+/* ─── Subfilter groups (CNF: OR within a group, AND across groups) ─── */
+.cs-subfilter {
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 8px;
+  background: var(--bg);
+  display: flex; flex-direction: column; gap: 5px;
+}
+.cs-sf-line {
+  display: flex; gap: 4px; align-items: center;
+}
+.cs-or-divider {
+  font-size: 10px; color: var(--dim);
+  text-transform: uppercase; letter-spacing: 0.6px;
+  font-weight: 500; text-align: center;
+  padding: 2px 0;
+}
+.cs-sf-del, .cs-sf-add {
+  flex-shrink: 0;
+  padding: 4px 7px;
+  font-size: 12px;
+  line-height: 1;
+}
+.cs-sf-add {
+  font-weight: 600;
+  min-width: 26px;
+}
+
+/* ─── Center plot ────────────────────────────────────────────── */
+.cs-main {
+  flex: 1; display: flex; flex-direction: column;
+  background: var(--bg); min-width: 0; overflow: hidden;
+}
+.cs-plot-header {
+  padding: 18px 28px 8px;
+  display: flex; align-items: baseline; justify-content: space-between;
+}
+.cs-plot-title {
+  font-family: var(--font-serif);
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.4px; margin: 0;
+  white-space: nowrap;
+}
+.cs-plot-title em {
+  color: var(--muted); font-style: italic; font-weight: 400;
+}
+.cs-plot-title .cs-rest-count {
+  font-style: italic;
+  color: var(--muted);
+  text-decoration: underline dotted;
+  cursor: help;
+  font-weight: 400;
+  display: inline-block;
+}
+.cs-plot-title .cs-rest-count:hover { color: var(--text); }
+.cs-plot-meta {
+  font-size: 11px; color: var(--muted); margin-top: 4px;
+}
+.cs-action-btn {
+  padding: 5px 11px; font-size: 11px;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 5px; color: var(--muted);
+  cursor: pointer; font-family: var(--font-sans);
+}
+.cs-action-btn:hover { color: var(--text); border-color: var(--text); }
+
+.cs-plot-area {
+  flex: 1; padding: 0 24px 24px; overflow: hidden; min-height: 0;
+  position: relative;  /* anchor for the Filter-visible button overlay */
+}
+.cs-plot-area .js-plotly-plot { height: 100% !important; }
+.cs-legend-action {
+  position: absolute;
+  z-index: 5;
+  /* top + right are set by the clientside positioner once the legend
+     SVG has rendered; CSS provides a sensible fallback only. */
+}
+
+.cs-stats-strip {
+  padding: 10px 28px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; gap: 16px; align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+.cs-stats-eyebrow {
+  font-size: 10px; letter-spacing: 0.6px;
+  text-transform: uppercase; color: var(--dim);
+  font-weight: 500;
+}
+.cs-stats-item {
+  display: flex; align-items: baseline; gap: 6px; font-size: 11px;
+}
+.cs-stats-item .label { color: var(--muted); }
+.cs-stats-item .count {
+  color: var(--text); font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* ─── Right detail panel ─────────────────────────────────────── */
+.cs-detail {
+  width: var(--right-w);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  flex-shrink: 0; overflow: hidden;
+}
+.cs-detail-head {
+  padding: 20px 22px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.cs-detail-head-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+.cs-detail-name {
+  font-family: var(--font-serif);
+  font-size: 21px; line-height: 1.15; font-weight: 500;
+  word-break: break-all;
+}
+.cs-detail-sub {
+  font-size: 11px; color: var(--muted);
+  font-family: var(--font-mono); margin-top: 4px;
+}
+.cs-sequence {
+  font-family: var(--font-mono);
+  font-size: 12px; line-height: 1.85;
+  word-break: break-all; letter-spacing: 0;
+}
+.cs-sequence .nt {
+  padding: 1px 1px;
+  color: #1c1917;  /* light theme: dark text on pastel bg */
+  border-radius: 1px;
+}
+[data-theme="dark"] .cs-sequence .nt {
+  color: #f5f5f4;  /* dark theme: light text on saturated bg */
+}
+.cs-shortcut-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.cs-shortcut-row:last-child { border-bottom: none; }
+.cs-shortcut-row .k { color: var(--text); }
+.cs-shortcut-row .kbd {
+  padding: 2px 7px; background: var(--subtle);
+  border: 1px solid var(--border); border-radius: 4px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--muted);
+}
+.cs-detail-stats {
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--border);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+.cs-tab-bar {
+  display: flex; padding: 0 22px;
+  border-bottom: 1px solid var(--border);
+}
+.cs-tab {
+  padding: 10px 0; margin-right: 18px;
+  background: none; border: none;
+  border-bottom: 1.5px solid transparent;
+  color: var(--muted); font-size: 12px;
+  cursor: pointer; font-family: var(--font-sans);
+  text-transform: capitalize;
+}
+.cs-tab:hover { color: var(--text); }
+.cs-tab.active {
+  border-bottom-color: var(--text);
+  color: var(--text);
+}
+.cs-detail-body { flex: 1; overflow: auto; padding: 14px 22px; }
+
+.cs-meta-row {
+  display: flex; justify-content: space-between;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+  font-size: 12px; gap: 12px;
+}
+.cs-meta-row .k { color: var(--muted); flex-shrink: 0; }
+.cs-meta-row .v {
+  color: var(--text); text-align: right;
+  word-break: break-all;
+}
+.cs-meta-row .v.mono { font-family: var(--font-mono); }
+
+/* When no feature selected, hide stats / tabs / body */
+.cs-detail.cs-no-feature .cs-detail-stats,
+.cs-detail.cs-no-feature .cs-tab-bar,
+.cs-detail.cs-no-feature .cs-detail-body { display: none; }
+
+/* ─── Plotly tweaks ──────────────────────────────────────────── */
+/* The dark "transparent overlay" you see on hover is Plotly's default
+   .modebar-group: rgba(255,255,255,0.7). On dark theme it reads as a
+   muddy translucent box. Make every modebar layer truly transparent
+   and let the page background show through. */
+.js-plotly-plot .plotly .modebar,
+.js-plotly-plot .plotly .modebar-container,
+.js-plotly-plot .plotly .modebar-group {
+  background: transparent !important;
+}
+.js-plotly-plot .plotly .modebar-btn path { fill: var(--muted) !important; }
+.js-plotly-plot .plotly .modebar-btn:hover path { fill: var(--text) !important; }
+/* Thicker hover-label border so the per-point color (set as bordercolor) reads */
+.hoverlayer .hovertext > path,
+.hoverlayer g.hovertext path {
+  stroke-width: 2.5px !important;
+}
+
+/* ─── Buttons primary ────────────────────────────────────────── */
+.cs-btn-primary {
+  width: 100%; padding: 7px 10px; font-size: 11px;
+  background: var(--text); color: var(--bg);
+  border: none; border-radius: 5px; cursor: pointer;
+  font-family: var(--font-sans);
+}
+.cs-btn-primary:hover { opacity: 0.9; }
+
+.cs-btn-danger {
+  padding: 4px 8px; font-size: 11px;
+  background: transparent; color: var(--accent-up);
+  border: 1px solid var(--border); border-radius: 5px;
+  cursor: pointer; font-family: var(--font-sans);
+}
+.cs-btn-danger:hover { border-color: var(--accent-up); }
+
+/* ─── Filter history (flex rows, separate restore + delete buttons) ─── */
+.cs-history { display: flex; flex-direction: column; gap: 4px; }
+.cs-history-row { display: flex; gap: 4px; align-items: stretch; }
+.cs-history-restore {
+  flex: 1; text-align: left; padding: 5px 8px;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 5px; color: var(--text);
+  font-size: 11px; font-family: var(--font-sans);
+  cursor: pointer; display: flex; gap: 8px; align-items: center;
+  min-width: 0;  /* allow flex children to shrink */
+}
+.cs-history-restore:hover { background: var(--subtle); }
+.cs-history-row.active .cs-history-restore {
+  background: var(--subtle); border-color: var(--text);
+}
+.cs-history-restore .num { color: var(--dim); min-width: 18px; flex-shrink: 0; }
+.cs-history-restore .desc {
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cs-history-restore .count {
+  color: var(--muted); font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.cs-history-delete { padding: 4px 7px; flex-shrink: 0; }
+
+/* ─── Saved views drawer ─────────────────────────────────────── */
+.cs-saved-list {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-top: 12px;
+}
+.cs-saved-card {
+  border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+}
+.cs-saved-card .info { flex: 1; min-width: 0; }
+.cs-saved-card .name {
+  font-size: 12px; font-weight: 500; color: var(--text);
+  word-break: break-all;
+}
+.cs-saved-card .sub {
+  font-size: 10px; color: var(--muted);
+  font-family: var(--font-mono); margin-top: 2px;
+}
+.cs-saved-card .actions {
+  display: flex; gap: 4px; flex-shrink: 0;
+}
+
+/* ─── Mantine overrides — keep widgets aligned with cs-* skin ─── */
+.mantine-Select-input, .mantine-NumberInput-input, .mantine-TextInput-input {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+}
+.mantine-Select-input:focus, .mantine-NumberInput-input:focus,
+.mantine-TextInput-input:focus {
+  border-color: var(--text) !important;
+}
+.mantine-Select-dropdown, .mantine-Popover-dropdown {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+.mantine-Menu-dropdown, .mantine-Modal-content, .mantine-Drawer-content {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+.mantine-Modal-header, .mantine-Drawer-header {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+.mantine-Text-root, .mantine-Title-root { color: var(--text) !important; }
+
+/* Slider — flat, minimal, themed */
+.mantine-Slider-track {
+  background: var(--subtle) !important;
+  height: 3px !important;
+}
+.mantine-Slider-bar { background: var(--text) !important; }
+.mantine-Slider-thumb {
+  border-color: var(--text) !important;
+  background: var(--surface) !important;
+  border-width: 2px !important;
+  width: 12px !important;
+  height: 12px !important;
+  box-shadow: none !important;
+}
+.mantine-Slider-mark {
+  background: var(--border) !important;
+  border-color: var(--border) !important;
+}
+.mantine-Slider-label {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+}
+
+/* Checkbox — square with theme accent on check */
+.mantine-Checkbox-input {
+  background: var(--bg) !important;
+  border-color: var(--border) !important;
+  border-radius: 3px !important;
+}
+.mantine-Checkbox-input:checked {
+  background: var(--text) !important;
+  border-color: var(--text) !important;
+}
+.mantine-Checkbox-icon { color: var(--bg) !important; }
+.mantine-Checkbox-label {
+  color: var(--text) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+}
+
+/* Slim labels above Mantine inputs (used in box-plot tab) */
+.mantine-InputWrapper-label, .mantine-Slider-label, .mantine-Checkbox-label {
+  font-family: var(--font-sans) !important;
+}
+.mantine-InputWrapper-label {
+  color: var(--dim) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-weight: 500 !important;
+  margin-bottom: 4px !important;
+}
+
+/* ─── Resize handles between sidebars and main ───────────────── */
+.cs-resize-handle {
+  width: 6px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  position: relative;
+  background: transparent;
+  user-select: none;
+}
+.cs-resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--border);
+  transform: translateX(-50%);
+  transition: background 0.12s, width 0.12s;
+}
+.cs-resize-handle:hover::before,
+.cs-resize-handle.dragging::before {
+  background: var(--text);
+  width: 2px;
+}
+
+/* When dragging globally, suppress text selection */
+body.cs-dragging * { user-select: none !important; }
+body.cs-dragging { cursor: col-resize !important; }
+
+/* Left controls panel inherits a flexible width: pixel value set inline by
+   the resize JS; min/max enforced in JS (10% / 50% of body width). The CSS
+   provides the initial default via the var. */
+.cs-controls { width: var(--left-w); min-width: 0; }
+.cs-detail   { width: var(--right-w); min-width: 0; }
+
+/* Section that hosts the left controls tabs (no padding so the bar sits
+   flush with section edges). */
+.cs-section-tabs { padding: 0 !important; }
+.cs-section-tabs > .cs-tab-bar { padding: 0 20px; border-bottom: 1px solid var(--border); }
+.cs-section-tabs > .cs-tab-body { padding: 16px 20px; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb {
+  background: var(--border); border-radius: 4px;
+}
+::-webkit-scrollbar-track { background: transparent; }

@@ -1,0 +1,50 @@
+package:
+  name: readdiff
+  version: "0.1.0"
+
+source:
+  path: ..
+
+build:
+  noarch: python
+  script: "{{ PYTHON }} -m pip install . --no-deps -vv"
+
+requirements:
+  host:
+    - python >=3.12
+    - pip
+    - setuptools >=61
+
+  run:
+    - python >=3.12
+    - numpy
+    - pandas
+    - scipy
+    - tqdm
+    - scanpy
+    - anndata
+    - pydeseq2
+    - matplotlib
+    - seaborn
+    - umap-learn
+    - joypy
+    - plotly
+    - dash
+    - dash-mantine-components
+    - pyyaml
+    - biopython
+    - typer
+    - snakemake
+    - snakemake-executor-plugin-slurm
+    - bedtools
+    - samtools
+    - star
+    - homer
+    - needle >=1.0.3
+
+test:
+  commands:
+    - readdiff version
+
+about:
+  summary: Alignment-free differential expression testing for sequencing reads

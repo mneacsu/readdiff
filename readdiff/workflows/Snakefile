@@ -1,0 +1,154 @@
+"""Unified Snakefile for poc-cli.
+
+Five pipelines (index, features, estimate, diff, annotate) wired by their inputs/outputs.
+Snakemake resolves the DAG natively: running a downstream target triggers
+its missing dependencies.
+
+Every output is rooted at WORKDIR (passed as --config workdir=...).
+Rules are namespaced `<pipeline>_<step>` to avoid collisions and make logs
+trivially mappable to a pipeline color in the CLI progress display.
+
+Each pipeline also has a target rule with the pipeline's name (no outputs,
+just `input:` listing the final files), so the CLI can run a pipeline with
+`snakemake <pipeline>`.
+"""
+
+singularity: "docker://mneacs/readdiff-mini:latest"
+
+import glob
+import os
+import math
+
+include: "scripts/utils.py"
+
+WORKDIR = workflow.workdir_init
+MAX_RAM_MB = config.get("max_ram", 64000)
+
+INPUT_DIR = config.get("sample_dir", "samples")
+if not os.path.isabs(INPUT_DIR):
+    INPUT_DIR = os.path.join(WORKDIR, INPUT_DIR)
+SAMPLES = [
+    f
+    for f in glob.glob(f"{INPUT_DIR}/*")
+    if f.endswith((".fq", ".fq.gz", ".fastq", ".fastq.gz"))
+]
+if not SAMPLES:
+    raise ValueError(f"No fastq files found in {INPUT_DIR}")
+
+PAIRED = config.get("paired", True)
+
+if "metadata" not in config:
+    raise ValueError(f"Metadata must be provided.")
+METADATA = config.get("metadata")
+if not os.path.exists(METADATA):
+    raise ValueError(f"File {METADATA} does not exist.")
+
+MAX_FILE_SIZE = max([get_size_mb(file) for file in SAMPLES])
+if PAIRED:
+    MAX_FILE_SIZE *= 2
+if SAMPLES[0].endswith(".gz"):
+    MAX_FILE_SIZE *= 5
+
+REQUIRED_RAM_MB = int(6/config.get("cutoff",2)  * MAX_FILE_SIZE)
+if REQUIRED_RAM_MB > MAX_RAM_MB:
+    print(
+        f"WARNING: The requested index configuration may exceed the target max RAM usage. "
+        f"Try increasing the cutoff and/or the difference between the window and the k-mer size."
+    )
+
+N_FEATURES = config.get("n_features", 100000)
+SEED = config.get("random_seed", 42)
+FEATURE_LEN = config.get("feature_len", 100)
+
+BATCH_SIZE = min(20000, MAX_RAM_MB)
+N_BATCHES = math.ceil(N_FEATURES / BATCH_SIZE)
+
+BALANCE = [slugify(c) for c in ensure_list(config.get("balance"))] if "balance" in config else []
+QUERY = config.get("query_file", f"{WORKDIR}/features/random_{N_FEATURES}features_seed{SEED}.fasta")
+QUERY_NAME = os.path.basename(QUERY).removesuffix(".fasta")
+
+if "test_factors" not in config:
+    raise ValueError(f"At least one test factor must be specified.")
+TEST_FACTORS = ensure_list(config["test_factors"])
+for i, f in enumerate(TEST_FACTORS):
+    TEST_FACTORS[i]["column"] = slugify(f["column"])
+    if "test_mode" not in f:
+        TEST_FACTORS[i]["test_mode"] = "pairwise"
+    else:
+        if f["test_mode"] not in ["pairwise", "one-vs-control", "one-vs-rest"]:
+            raise ValueError(f"Unknown test mode {f["test_mode"]}. Choose from: pairwise, one-vs-control, one-vs-rest")
+        if (f["test_mode"] == "one-vs-control") and ("control" not in f or not f["control"]):
+            raise ValueError("A control condition must be specified in one-vs-control mode.")
+
+BATCH_FACTORS = [slugify(c) for c in ensure_list(config.get("batch_factors"))] if "batch_factors" in config else []
+
+PADJ_THRESHOLD = config.get("padj_threshold", 0.05)
+LOG2FC_THRESHOLD = config.get("log2fc_threshold", 0)
+STAR_INDEX = config.get("star_index", "STAR index not specified")
+GTF_ANNOTATION = config.get("gtf_annotation", "GTF annotation not specified")
+HOMER_GENOME = config.get("homer_genome", "hg38")
+
+include: "index.smk"
+include: "features.smk"
+include: "estimate.smk"
+include: "diff.smk"
+include: "annotate.smk"
+
+INDEX = SplitIndex(
+            SAMPLES,
+            metadata=METADATA,
+            paired_end=PAIRED,
+            compress=True,
+            n_indices=config.get("n_indices", 1),
+            w=config.get("window_size", 24),
+            k=config.get("kmer_size", 18),
+            cutoff=config.get("cutoff", 2),
+            l=config.get("n_bins", 20),
+        )
+
+QUERY_ESTIMATE = Query_estimate(
+            f"{WORKDIR}/index",
+            QUERY,
+            log_estimates=config.get("log10", False),
+            normalize=config.get("normalize", False),
+        )
+
+# ── Pipeline targets ─────────────────────────────────────────────────
+# The CLI invokes Snakemake with one of these names. They have inputs but
+# no outputs, so Snakemake builds the listed inputs.
+#
+# Each downstream target also lists the *full* set of upstream outputs (via
+# `rules.X.input`). Without this, Snakemake's lazy DAG resolution would only
+# build the precise subset needed by the downstream rule chain — meaning
+# files like alpha/summary.txt would never exist after `run delta`. The
+# target-rule chain forces every upstream pipeline to be fully done.
+
+# Default target.
+rule all:
+    input:
+        f"{WORKDIR}/differential_testing/{QUERY_NAME}/deseq2_merged_results.tsv",
+
+rule index:
+    input:
+        [f"{WORKDIR}/index/index_{idx}/IBF_Level_0" for idx in range(INDEX.n_indices)],
+        f"{WORKDIR}/index/index_metadata.csv",
+        f"{WORKDIR}/index/metadata.csv",
+        f"{WORKDIR}/index/window_count.csv",
+
+rule features:
+    input:
+        f"{WORKDIR}/features/random_{N_FEATURES}features_seed{SEED}.fasta",
+
+rule estimate:
+    input:
+        f"{WORKDIR}/estimates/{QUERY_NAME}_raw.h5ad",
+        f"{WORKDIR}/estimates/{QUERY_NAME}_transformed.h5ad" if QUERY_ESTIMATE.normalize or QUERY_ESTIMATE.log_estimates else []
+
+rule diff:
+    input:
+        f"{WORKDIR}/differential_testing/{QUERY_NAME}/deseq2_norm_counts.h5ad",
+        f"{WORKDIR}/differential_testing/{QUERY_NAME}/deseq2_merged_results.tsv",
+
+rule annotate:
+    input:
+        f"{WORKDIR}/annotations/{QUERY_NAME}.analysis_table.tsv",
